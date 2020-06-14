@@ -1,75 +1,79 @@
-# from app import app
-# from flask import Flask, render_template, request, redirect, url_for, flash
-# from app.models import Pulse, RadarParameters
-# from app import db, experiment
-# import configparser
-# import json
+from app import app
+from flask import Flask, render_template, request, redirect, url_for, flash
+from app.models import Pulse, RadarParameters
+from app import db, experiment, mqtt_config, ConManager
+import configparser
+import json
+from flask_mqtt import Mqtt
+import time
+import ast
 
-# import time
+mq_client_name = mqtt_config['DEFAULT']['ClientName']
+mq_connections = mqtt_config['Channels']['Connections']
+mq_expdict = mqtt_config['Channels']['ExperimentDict']
+mq_status = mqtt_config['Channels']['Status']
 
+mqtt_client = Mqtt(app)
+# mqtt_client.name = mq_client_name
 
-# # def start_mqtt(self):
-# #     if self.running == 0:
-# # self.running = 1
-# # client_name=self.client_name
-# # broker=self.broker
-# # topic=self.topic_experiment
+connection_status_topic = mq_connections[:-2] +'/'+ mq_client_name
+print('Publishing to', connection_status_topic)
 
-# print('Joining MQTT Server ...')
+def update_connections(m):
+    # try:
+    temp=ast.literal_eval(m)
+    ConManager.conman.cond.update(temp)
 
-# connection_status_topic="/connections/"+client_name
+    return redirect(url_for('connection'))
+    # except:
+    #     print('Please check format of MQTT string!')
 
-# def on_disconnect(client, userdata, flags, rc=0):
-#     m="DisConnected flags"+"result code "+str(rc)
-#     print(m)
-#     client.connected_flag=False
-# def on_connect(client, userdata, flags, rc):
-#     if rc==0:
-#         print("connected OK Returned code=",rc)
-#         client.connected_flag=True #Flag to indicate success
-#     else:
-#         print("Bad connection Returned code=",rc)
-#         client.bad_connection_flag=True
-# def on_log(client, userdata, level, buf):
-#     print("log: ",buf)
-# def on_message(client, userdata, message):
-#     print("message received: "  ,str(message.payload.decode("utf-8")))
+    # print(ConManager.conman.cond)
 
 
-# mqtt.Client.connected_flag=False #create flags
-# mqtt.Client.bad_connection_flag=False #
-# mqtt.Client.retry_count=0 #
-# # broker = '172.17.0.2'
+@mqtt_client.on_connect()
+def handle_connect(client, userdata, flags, rc):
+    print('Connected to MQTT Broker!')
+    if rc==0:
+        # print("Client Connected:",cli)
+        print("connected OK Returned code=",rc)
+        print("Client Connected:",client.name)
+        client.connected_flag=True #Flag to indicate success
+    else:
+        print("Bad connection Returned code=",rc)
+        client.bad_connection_flag=True
 
-# client = mqtt.Client(client_name)
-# client.on_connect = on_connect
-# client.on_disconnect = on_disconnect
-# client.on_message = on_message
+@mqtt_client.on_message()
+def on_message(client, userdata, message):
+    m =str(message.payload.decode("utf-8"))
+    if str(message.topic)[0:12] == mq_connections[0:12]: #Bit of a hack for string checking ..
+        update_connections(m)
+    if message.topic == 'Radar/Connections' and m == 'GO':
+        print('This is working!')
 
-# print("Publising on ",connection_status_topic )
-# print("Setting will message")
-# client.will_set(connection_status_topic,"False",0,True) #set will message
+def on_disconnect(client, userdata, flags, rc=0):
+    m=client.name+"DisConnected flags"+"result code "+str(rc)
+    print(m)
+    client.connected_flag=False
+    connection = {client.name:client.connected_flag}
+    ConManager.conman.cond.update(connection)
 
-# print('Connecting to Broker')
-# client.connect(broker)
-# print('Subscribing to Topic',topic)
-# client.subscribe(topic)
+def on_log(client, userdata, level, buf):
+    print("log: ",buf)
 
-# client.publish(connection_status_topic,"True",0,True)#use retain flag
 
-# try:
-#     while True:
-#         while not client.connected_flag:
-#             client.loop()
-#             time.sleep(1)#wait for connection
-#             client.loop_start()
-#         time.sleep(1)
+mqtt_client.subscribe(mq_connections)
+print('Mqtt client Connected to',mq_connections)
+mqtt_client.subscribe(mq_expdict)
+mqtt_client.subscribe(mq_status)
 
-# except KeyboardInterrupt:
-#     print('Exiting')
-#     client.publish(connection_status_topic,"False",0,True)
-#     client.disconnect()
-#     client.loop_stop()
+temp = {mq_client_name:{"name":mq_client_name,"connected":True}}
+mqtt_client.publish(connection_status_topic,str(temp),0,True)
 
-# # mqttclient = MqttClient()
-# # mqttclient.start_mqtt()
+
+# mqtt_client.will_set(connection_status_topic,str({mq_client_name:{"name":mq_client_name,"connected":False}}),0,True) #set will message
+
+
+# mq_connection_status_topic = mq_connections + mq_client_name
+
+# mqtt_client.will_set(mq_connection_status_topic,"False",0,True)

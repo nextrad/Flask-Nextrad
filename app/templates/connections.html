@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% include 'header.html' %}
+
+{% block title %} Control {% endblock %}
+
+{% block body %}
+
+<meta http-equiv="refresh" content="1">  
+
+<div class="container">
+    <div class="jumbotron">
+        <div class="row">
+            <!-- <div class="jumbotron p-3"> -->
+            
+    
+            <div class="col-md-2">
+                <h2>Connections</h2>
+                {% for con, val in connections.items() %}
+                    {% for c,v in val.items() %}
+                        {% if v == True %}
+                        <p style="color:green"> {{ con }} </p>
+                        {% elif v == False %}
+                        <p style="color:red"> {{ con }} </p>
+
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>  
+    </div>
+</div>
+
+{% endblock %}

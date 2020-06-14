@@ -1,14 +1,11 @@
 from app import app
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from app.models import Pulse
-from app import db, mqtt_client
-from app import tables, experiment, mappy
+from app import db
+from app import tables, experiment, mappy, ConManager
 import configparser
 import json
 import datetime
-# from app import mqttclient
-
-
 
 @app.route('/',methods=['GET','POST'])
 @app.route('/control',methods=['GET','POST'])
@@ -33,4 +30,10 @@ def map():
     defaults=tables.pulse_defaults.defaults
     mapbox_access_token = 'pk.eyJ1IjoidXNlbmFtZXVzdXJwZXIiLCJhIjoiY2p6ZHdtMG9vMGJrNDNxdWl0OWJuZG9qeiJ9.YfrEsL3WyMm3aPG-kRXz1g'
     return render_template('map.html',mapbox_access_token=mapbox_access_token,lati=lati,longi=longi,defaults=defaults)
+
+@app.route('/connections')
+def connection():
+    connections = ConManager.conman.cond
+    # print('Passing',ConManager.conman.cond)
+    return render_template('connections.html',connections=connections)
 

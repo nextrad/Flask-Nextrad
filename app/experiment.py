@@ -1,13 +1,11 @@
 from app import app
 from flask import Flask, render_template, request, redirect, url_for, flash
 from app.models import Pulse, RadarParameters
-from app import db, mqtt_client
+from app import db
 import configparser
 import json
 from app import tables
-from flask_mqtt import Mqtt
-
-
+from app import mqttclient
 
 class Experiment:
     def __init__(self):
@@ -60,8 +58,6 @@ class Experiment:
         }
 
 
-
-
 @app.route('/run', methods = ['POST'])
 def run():
     if request.method == 'POST':
@@ -76,7 +72,7 @@ def run():
 
         # print(experiment.exp_dict)
 
-        mqtt_client.publish('home/mytopic', str(experiment.exp_dict))
+        mqttclient.mqtt_client.publish(mqttclient.mq_expdict, str(experiment.exp_dict))
 
         flash("Experiment Running")
         return redirect(url_for('index'))
