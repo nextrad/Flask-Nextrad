@@ -1,0 +1,84 @@
+<!--header.html-->
+{% extends 'base.html' %}
+ 
+{% block title %} NeXtController {% endblock %}
+ 
+{% block body %}
+<div class="jumbotron p-3">
+    <!-- <div class="row"> -->
+        <!-- <div class="col-md-12"></div> -->
+            <div class="well text-center">
+                <h1>NeXtRAD Controller</h1>
+                <a class="active" href="{{ url_for('index') }}">&ensp; Control &ensp;  </a>
+                <a class="active" href="{{ url_for('map') }}">&ensp; Map &ensp;   </a>
+                <a class="active" href="{{ url_for('index') }}">&ensp; Monitor &ensp;  </a>
+                <a class="active" href="{{ url_for('index') }}">&ensp; Camera &ensp;   </a>
+            </div>
+            <p class="bottom-three">
+                <!-- This is the first question? -->
+             </p>
+            <div class='container'>
+                <div class="row">
+                <div class="col-md-12">
+                <div class='vertical-center'>
+                    <!-- <div class='col-md-12'> -->
+                        <form action="{{ url_for('run') }}" method="post">
+                            <input type=submit class="btn btn-success btn-block" value="Run">
+                        </form>
+                    <!-- </div> -->
+                </div></div></div>
+            </div>
+        <!-- </div> -->
+        <!-- <div class="col-md-12">
+            <div class="card bg-dark text-white">
+                <h3 class="card-title text-center">
+                    <div class="d-flex flex-wrap justify-content-center mt-2">
+                        <a><span class="badge hours"></span></a> :
+                        <a><span class="badge min"></span></a> :
+                        <a><span class="badge sec"></span></a>
+                    </div>
+                </h3>
+            </div>
+            <script>
+                $(document).ready(function() {
+                setInterval( function() {
+                var hours = new Date().getHours();
+                $(".hours").html(( hours < 10 ? "0" : "" ) + hours);
+                }, 1000);
+                setInterval( function() {
+                var minutes = new Date().getMinutes();
+                $(".min").html(( minutes < 10 ? "0" : "" ) + minutes);
+                },1000);
+                setInterval( function() {
+                var seconds = new Date().getSeconds();
+                $(".sec").html(( seconds < 10 ? "0" : "" ) + seconds);
+                },1000);
+                });
+            </script>
+        </div> -->
+    <!-- </div> -->
+<!-- </div> -->
+    <p class="bottom-three">
+        <!-- This is the first question? -->
+     </p>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="container">
+    <div class="row">
+        <div class="col md-12">
+            <div class="alert alert-success alert-dismissable" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                <span aria-hidden="true">x</span>
+                </button>
+            {{message}}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endif %}
+{% endwith %}
+</div>
+{% endblock %}

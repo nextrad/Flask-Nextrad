@@ -1,0 +1,201 @@
+<!--index.html-->
+{% extends 'base.html' %}
+
+ 
+{% block title %} Control {% endblock %}
+  
+{% block body %}
+<div class="container">
+    <div class="jumbotron">
+        <div class="row">
+            <!-- <div class="jumbotron p-3"> -->
+            
+    
+            <div class="col-md-2">
+
+                <!-- <h2>Parameters</h2> -->
+                <form action="{{ url_for('submit_pulse_params') }}" method="post">
+                    <div class="form-group">
+                        <label>PRI:</label>
+                        <input type="number" class="form-control" name="pri" required="1" value="{{ radar_params.pri }}" placeholder="{{ radar_params.pri }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Range Samples:</label>
+                        <input type="number" class="form-control" name="range_samples" required="1" value="{{ radar_params.range_samples }}" placeholder="{{ radar_params.range_samples }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Num. Pulses:</label>
+                        <input type="number" class="form-control" name="num_pulse" required="1" value="{{ radar_params.num_pulse }}" placeholder="{{ radar_params.num_pulse }}">
+                    </div>
+                    <div class="form-group">
+                        <input type=submit class="btn btn-success btn-block" value='Edit'>
+                    </div>
+                </form>
+            </div>
+
+                <!-- <div class="col md-12"> -->
+            <div class="col-md-10">
+                <!-- <div class="jumbotron p-3"> -->
+                <!-- <h2 style="text-align: center">Pulse List  </h2> -->
+
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>Num<th>
+                        <th>Freq</th>
+                        <th>Pulse Width</th>
+                        <th>Pols</th>
+                        <th><button type="button"  class="btn btn-success"
+                            data-toggle="modal" data-target="#mymodal">Add</button></th>
+                    </tr>
+                    {% for row in pulses %}
+                        <tr>
+                            <!--<td>{{row.id}}<td>-->
+                            <td>{{ loop.index }}<td></td>
+                            <td>{{row.frequency}}</td>
+                            <td>{{row.pulse_width}}</td>
+                            <td>{{row.polarisation}}</td>
+                            <td>
+                                <a href="/update/{{row.id}}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modaledit{{row.id}}">Edit</a>
+                                <a href="/delete/{{row.id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure To Delete ?')">Del</a>
+                            </td>
+                        </tr>
+                            <!-- Modal Edit Employee-->
+                        <div id="modaledit{{row.id}}" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header"><h4 class="modal-title">Edit Pulse</h4></div>
+                                        <div class="modal-body">
+                                            <form action="{{url_for('update')}}" method="POST">
+                                                <div class="form-group">
+                                                    <label>Frequency:</label>
+                                                    <input type="hidden"  name="id" value="{{row.id}}">
+                                                    <select name="frequency" id="freq">
+                                                        <optgroup label="L Band">
+                                                        {% for L in defaults.L_frequency_str %}
+                                                            <option value="{{ L }}">{{ L }}</option>
+                                                        {% endfor %}
+                                                        </optgroup>
+                                                        <optgroup label="X Band">
+                                                        {% for X in defaults.X_frequency_str %}
+                                                            <option value="{{ X }}">{{ X }}</option>
+                                                        {% endfor %}
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Pulse Width:</label>
+                                                    <select name="pulse_width" id="pw">
+                                                        <optgroup label="Pulse Width">
+                                                        {% for p in defaults.p_width_str %}
+                                                            <option value="{{ p }}">{{ p }}</option>
+                                                        {% endfor %}
+                                                        </optgroup>
+                                                        </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Polarisation:</label>
+                                                    <select name="polarisation" id="pols">
+                                                        <optgroup label="L Band">
+                                                        {% for L in defaults.L_pols_str %}
+                                                            <option value="{{ L }}">{{ L }}</option>
+                                                        {% endfor %}
+                                                        </optgroup>
+                                                        <optgroup label="X Band">
+                                                        {% for X in defaults.X_pols_str %}
+                                                            <option value="{{ X }}">{{ X }}</option>
+                                                        {% endfor %}
+                                                        </optgroup>
+                                                        </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <button class="btn btn-primary" type="submit">Edit</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                    {% endfor %}
+                </table>
+                <!-- Modal Add Employee-->
+                <div id="mymodal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h4 class="modal-title">Add Pulse</h4></div>
+                                <div class="modal-body">
+                                    <form action="{{url_for('insert')}}" method="POST">
+                                        <div class="form-group">
+                                            <label>Frequency:</label>
+                                            <!--<input type="text" class="form-control" name="frequency" required="1">-->
+                                            <select name="frequency" id="freq">
+                                                <optgroup label="L Band">
+                                                {% for L in defaults.L_frequency_str %}
+                                                    <option value="{{ L }}">{{ L }}</option>
+                                                {% endfor %}
+                                                </optgroup>
+                                                <optgroup label="X Band">
+                                                {% for X in defaults.X_frequency_str %}
+                                                    <option value="{{ X }}">{{ X }}</option>
+                                                {% endfor %}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Pulse Width:</label>
+                                            <!--<input type="text" class="form-control" name="pulse_width" required="1">-->
+                                            <select name="pulse_width" id="pw">
+                                            <optgroup label="Pulse Width">
+                                            {% for p in defaults.p_width_str %}
+                                                <option value="{{ p }}">{{ p }}</option>
+                                            {% endfor %}
+                                            </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Polarisation:</label>
+                                                <!--<input type="text" class="form-control" name="polarisation" required="1">-->
+                                            <select name="polarisation" id="pols">
+                                                <optgroup label="L Band">
+                                                {% for L in defaults.L_pols_str %}
+                                                    <option value="{{ L }}">{{ L }}</option>
+                                                {% endfor %}
+                                                </optgroup>
+                                                <optgroup label="X Band">
+                                                    {% for X in defaults.X_pols_str %}
+                                                        <option value="{{ X }}">{{ X }}</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <button class="btn btn-primary" type="submit">Add Pulse</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="jumbotron">
+            <div class='row'>
+                <div class='col-md-2'>
+                    <form action="{{ url_for('run') }}" method="post">
+                        <input type=submit class="btn btn-success btn-block" value="Run">
+                    </form>
+                </div>
+            </div>
+        </div> -->
+    </div>
+</div>
+
+
+{% endblock %}

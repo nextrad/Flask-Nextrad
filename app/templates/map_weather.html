@@ -1,0 +1,124 @@
+
+
+{% extends 'base.html' %}
+
+{% include 'header.html' %}
+
+{% block body %}
+
+
+<head>
+  <script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.js'></script>
+  <link href='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.css' rel='stylesheet' />
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+  </style>
+</head>
+<body>
+<style>
+  #map-ui {
+    position:absolute;
+    top:50px;left:10px;
+    z-index:100;
+    }
+    #map-ui ul {
+      list-style:none;
+      margin:0;padding:0;
+      }
+      #map-ui a {
+        font-size:13px;
+        background:#FFF;
+        color:#3C4E5A;
+        display:block;
+        margin:0;padding:0;
+        border:1px solid #BBB;
+        border-bottom-width:0;
+        min-width:138px;
+        padding:10px;
+        text-decoration:none;
+        }
+      #map-ui a:hover { background:#ECF5FA; }
+      #map-ui li:last-child a {
+        border-bottom-width:1px;
+        -webkit-border-radius:0 0 3px 3px;
+                border-radius:0 0 3px 3px;
+        }
+      #map-ui li:first-child a {
+        -webkit-border-radius:3px 3px 0 0;
+                border-radius:3px 3px 0 0;
+              }
+      #map-ui a.active {
+        background:#3887BE;
+        border-color:#3887BE;
+        color:#FFF;
+        }
+
+</style>
+<div id='map'>
+  <div id='map-ui'>
+    <ul>
+      <li><a href='#' class='active' id='radar'>Radar</a></li>
+      <li><a href='#' class='active' id='clouds'>Clouds</a></li>
+      <li><a href='#' class='active' id='precip'>Precipitation</a></li>
+    </ul>
+  </div>
+</div>
+<script>
+mapbox.wms = function(template, name) {
+    function _wms_provider(template) {
+        MM.MapProvider.call(this, function(coordinate) {
+            var coord = this.sourceCoordinate(coordinate);
+            if (!coord) return null;
+            var center = Math.pow(2, coord.zoom - 1),
+                incr = Math.pow(2, -coord.zoom) * 20037508.34 * 2,
+                w = (coord.column - center) * incr,
+                s = (center - coord.row - 1) * incr;
+            return template.replace('{BBOX}', [w,
+                s,
+                w + incr,
+                s + incr].join(','));
+        });
+    };
+    _wms_provider.prototype = {
+        getTile: function(coord) {
+            return this.getTileUrl(coord);
+        }
+    };
+    MM.extend(_wms_provider, MM.MapProvider);
+    return new MM.Layer(new _wms_provider(template), null, name);
+};
+
+// This WMS layer type only supports layers that provide the Spherical
+// Mercator projection, referred to by EPSG:900913 and EPSG:3857
+// Add a WMS layer by adding the {BBOX} token to a GetTile request URL
+mapbox.auto('map', 'lxbarth.map-n8gsdqn4', function(map) {
+    map.zoom(5).center({ lat: 45, lon: -80 });
+
+    var clouds = mapbox.wms('http://wms.openweathermap.org/service?LAYERS=clouds&FORMAT=image%2Fpng&SRS=EPSG%3A900913&TRANSPARENT=TRUE&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&BBOX={BBOX}&WIDTH=512&HEIGHT=512', 'Clouds');
+    map.addLayer(clouds);
+    var precip = mapbox.wms('http://wms.openweathermap.org/service?LAYERS=precipitation&FORMAT=image%2Fpng&SRS=EPSG%3A900913&TRANSPARENT=TRUE&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&BBOX={BBOX}&WIDTH=512&HEIGHT=512', 'Precipitation');
+    map.addLayer(precip);
+    var radar = mapbox.wms('http://tile.openweathermap.org/wms?LAYERS=RADAR.12KM&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&TRANSPARENT=true&FORMAT=image%2Fpng&STYLES=&SRS=EPSG%3A900913&BBOX={BBOX}&WIDTH=512&HEIGHT=512', 'Radar');
+    map.addLayer(radar);
+
+    // Layer switcher
+    document.getElementById('clouds').onclick = function() {
+        (!clouds.enabled) ? clouds.enable() : clouds.disable();
+        this.className = clouds.enabled ? 'active' : '';
+        return false;
+    }
+    document.getElementById('precip').onclick = function() {
+        (!precip.enabled) ? precip.enable() : precip.disable();
+        this.className = precip.enabled ? 'active' : '';
+        return false;
+    }
+    document.getElementById('radar').onclick = function() {
+        (!radar.enabled) ? radar.enable() : radar.disable();
+        this.className = radar.enabled ? 'active' : '';
+        return false;
+    }
+});
+</script>
+</body>
+{% endblock %}
