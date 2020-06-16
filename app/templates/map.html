@@ -130,7 +130,11 @@
 								{% for tgt,value in defaults.tgts.items() %}
 									<optgroup label="{{ tgt }}">
 									{% for name in value %}
+										{% if name == target %}
+										<option value="{{ name }}" selected>{{ name }}</option>
+										{% else %}
 										<option value="{{ name }}">{{ name }}</option>
+										{% endif %}
 									{% endfor %}
 								{% endfor %}
 							</optgroup>

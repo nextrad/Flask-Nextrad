@@ -61,13 +61,19 @@
     <p class="bottom-three">
         <!-- This is the first question? -->
      </p>
-{% with messages = get_flashed_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-{% for message in messages %}
+{% for category, message in messages %}
 <div class="container">
     <div class="row">
         <div class="col md-12">
+            {%if category == 'error' %}
+            <div class="alert alert-danger alert-dismissable" role="alert">
+            {% elif category == 'warning' %}
+            <div class="alert alert-warning alert-dismissable" role="alert">
+            {% else %}
             <div class="alert alert-success alert-dismissable" role="alert">
+            {% endif %}
                 <button type="button" class="close" data-dismiss="alert" aria-label="close">
                 <span aria-hidden="true">x</span>
                 </button>

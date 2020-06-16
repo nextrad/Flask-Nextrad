@@ -20,6 +20,11 @@ app.config['MQTT_CONNECTED_FLAG'] = False
 app.config['MQTT_BAD_CONNECTION_FLAG'] = False
 app.config['MQTT_RETRY_COUNT'] = 2
 app.config['MQTT_CLIENT_NAME'] = 'CNC'
+app.config['MQTT_LAST_WILL_TOPIC'] = 'Radar/Connections/CNC'
+app.config['MQTT_LAST_WILL_MESSAGE'] = str({'CNC':{'CNC':{"name":'CNC',"connection":False,"ip":"192.168.100"}}})
+app.config['MQTT_LAST_WILL_QOS'] = 0
+app.config['MQTT_LAST_WILL_RETAIN'] = True
+
 
 
 app.secret_key = "nextrad1234"

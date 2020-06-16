@@ -1,0 +1,86 @@
+CNC:
+    CNC:
+        name: CNC
+        connection: False
+        ip: 192.168.0.11    
+    NTP:
+        name: NTP
+        connection: False
+        ip: 192.168.0.11   
+
+Node0:
+    Node0:
+        name: Node0
+        connection: False
+        ip: 192.168.0.11
+    Rhino0:
+        name: Rhino0
+        connection: False
+        ip: 192.168.0.11
+    Pentek0:
+        name: Pentek0
+        connection: False
+        ip: 192.168.0.11
+    Cam0:    
+        name: Cam0
+        connection: False
+        ip: 192.168.0.11
+    GPSDO0:
+        latitude: None
+        longitude: None
+        tau: None
+        locked: None
+    Status:
+        run: 0
+        
+Node1:
+    Node1:
+        name: Node1
+        connection: False
+        ip: 192.168.0.11
+    Rhino1:
+        name: Rhino1
+        connection: False
+        ip: 192.168.0.11
+    Pentek1:
+        name: Pentek1
+        connection: False
+        ip: 192.168.0.11
+    Cam1:    
+        name: Cam1
+        connection: False
+        ip: 192.168.0.11
+    GPSDO1:
+        latitude: None
+        longitude: None
+        tau: None
+        locked: None
+    Status:
+        run: 0
+        
+Node2:
+    Node2:
+        name: Node2
+        connection: False
+        ip: 192.168.0.11
+    Rhino2:
+        name: Rhino2
+        connection: False
+        ip: 192.168.0.11
+    Pentek2:
+        name: Pentek2
+        connection: False
+        ip: 192.168.0.11
+    Cam2:    
+        name: Cam2
+        connection: False
+        ip: 192.168.0.11
+    GPSDO2:
+        latitude: None
+        longitude: None
+        tau: None
+        locked: None
+    Status:
+        run: 0
+        
+        
