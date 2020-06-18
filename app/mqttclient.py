@@ -48,6 +48,7 @@ def update_connections(m):
     temp=ast.literal_eval(m)
     ConManager.conman.cond = update(ConManager.conman.cond,temp)
     ConManager.conman.node_valid()
+    ConManager.send_message((ConManager.conman.cond))
 
 
 if mq_is_running:
@@ -59,6 +60,7 @@ if mq_is_running:
             print("connected OK Returned code=",rc)
             print("Client Connected:",client.name)
             client.connected_flag=True #Flag to indicate success
+            ConManager.send_message((ConManager.conman.cond))
         else:
             print("Bad connection Returned code=",rc)
             client.bad_connection_flag=True

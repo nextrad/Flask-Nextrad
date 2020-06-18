@@ -5,12 +5,12 @@ from flask_migrate import Migrate
 from flask_mqtt import Mqtt
 import configparser
 
+from flask_socketio import SocketIO, send
 
 mqtt_config = configparser.ConfigParser()
 mqtt_config.read('./configs/mqtt_config.ini')
 
 app = Flask(__name__)
-
 
 app.config['MQTT_BROKER_URL'] = mqtt_config['DEFAULT']['BrokerAddr']
 app.config['MQTT_BROKER_PORT'] = int(mqtt_config['DEFAULT']['Port'])
@@ -35,3 +35,4 @@ migrate = Migrate(app, db)
 from app import routes, models
 
 from app import mqttclient
+

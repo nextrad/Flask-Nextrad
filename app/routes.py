@@ -1,11 +1,56 @@
 from app import app
-from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify, make_response
 from app.models import Pulse
 from app import db
 from app import tables, experiment, mappy, ConManager
 import configparser
 import json
 import datetime
+from importlib import import_module
+import os
+from flask import Flask, render_template, Response
+from datetime import datetime
+from functools import wraps, update_wrapper
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+    return update_wrapper(no_cache, view)
+
+def connect_cameras():
+    try:
+        Camera0 = import_module('camera_opencv').Camera0
+        cam0=1
+    except:
+        Camera0 = None
+        cam0=0
+    try:
+        Camera1 = import_module('camera_opencv').Camera1
+        cam1=1
+    except:
+        Camera1 = None
+        cam1=0
+    try:
+        Camera2 = import_module('camera_opencv').Camera2
+        cam2=1
+    except:
+        Camera2 = None
+        cam2=0
+
+    return cam0,cam1,cam2, Camera0, Camera1,Camera2
+
+# cam0, cam1, cam2, Camera0, Camera1, Camera2 = connect_cameras()
+cam0 = 0
+cam1 = 0
+
+cam2 = 0
+nc_image = 'static/no_con.jpg'
 
 @app.route('/',methods=['GET','POST'])
 @app.route('/control',methods=['GET','POST'])
@@ -15,6 +60,12 @@ def index():
     radar_params={'pri':str(tables.radar_params.pri),'num_pulse':str(tables.radar_params.num_pulse),'range_samples':str(tables.radar_params.range_samples)}
     # users = [{'name':'Bob','surname':'Man','handle':'@this','order':'1'},{'name':'Susan','surname':'Fish','handle':'@meep','order':'2'}]
     return render_template('control.html', title='Control',pulses=pulses,defaults=defaults,radar_params=radar_params)
+
+
+@app.route('/video',methods=['GET','POST'])
+def video():
+    
+    return render_template('video.html',image=nc_image)
 
 
 @app.route('/edit')
@@ -32,12 +83,6 @@ def map():
     mapbox_access_token = 'pk.eyJ1IjoidXNlbmFtZXVzdXJwZXIiLCJhIjoiY2p6ZHdtMG9vMGJrNDNxdWl0OWJuZG9qeiJ9.YfrEsL3WyMm3aPG-kRXz1g'
     return render_template('map.html',mapbox_access_token=mapbox_access_token,lati=lati,longi=longi,defaults=defaults,target=target)
 
-@app.route('/connections')
-def connection():
-    connections = ConManager.conman.cond
-    valid_nodes = ConManager.conman.valid_nodes
-    include_nodes = ConManager.conman.include_node
-    return render_template('connections.html',connections=connections,valid_nodes=valid_nodes,include_nodes=include_nodes)
 
 
 @app.route('/_stuff', methods= ['GET'])
@@ -53,3 +98,59 @@ def utility_functions():
     def print_in_console(message):
         print(str(message))
     return dict(mdebug=print_in_console)
+
+def gen(camera):
+    """Video streaming generator function."""
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+@app.route('/video_feed_0')
+def video_feed_0():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    if cam0==1:
+        return Response(gen(Camera0()),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response(nc_image)
+
+@app.route('/video_feed_1')
+def video_feed_1():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    if cam1 == 1:
+        return Response(gen(Camera1()),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response(nc_image)
+
+@app.route('/video_feed_2')
+def video_feed_2():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    if cam2==1:
+        return Response(gen(Camera2()),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response(nc_image,mimetype='image/gif')
+
+@app.route('/testpage2')
+def suggestions():
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
+    jtime = {'time':time}
+    return render_template('testpage2.html', time=time)
+
+# @app.route('/testpage')
+# @nocache
+# def testpage():
+
+#     print('=====',togs)
+#     return render_template('testpage.html',)
+
+@app.route('/connections')
+@nocache
+def connection():
+    ConManager.send_message((ConManager.conman.cond))
+    togs = ConManager.conman.include_node
+    return render_template('connections.html', togs=togs)

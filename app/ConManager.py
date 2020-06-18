@@ -5,6 +5,40 @@ import ast
 import yaml
 import ruamel.yaml
 from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_socketio import SocketIO, send
+
+clients = []
+
+socketio = SocketIO(app)
+
+def node_toggles(msg):
+    conman.include_node.update(msg)
+    print(conman.include_node)
+
+@socketio.on('message')
+def handleMessage(msg):
+    print('Message: ', msg)
+    # send(msg,json=True,broadcast=True)
+    try:
+        x = ast.literal_eval(msg)
+        node_toggles(x)
+    except:
+        print('Print Not a Dictionary')
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+    clients.append(request.sid)
+    socketio.send(conman.cond)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+    clients.remove(request.sid)
+
+def send_message(data):
+    socketio.send(data)
+
 
 class Connections():
 
@@ -21,7 +55,7 @@ class Connections():
         # self.Node_N2 = self.cond['N2']
 
         self.valid_nodes={'Node0':'No','Node1':'No','Node2':'No'}
-        self.include_node ={'Node0':'False','Node1':'True','Node2':'False'}
+        self.include_node ={'Node0':'True','Node1':'True','Node2':'True'}
         self.node_valid()
 
     def Check_Connections(self):
@@ -60,19 +94,6 @@ def includenode():
         else:
             conman.include_node.update({node:'True'})
             print(conman.include_node)
-            # flash("Included Node")
-
-        # except:
-        #     # if ut
-        #     previous_state=conman.include_node[node]
-        #     if previous_state == 'True':
-        #         conman.include_node.update({node:'False'})
-        #         print(conman.include_node)
-        #     else:
-        #         conman.include_node.update({node:'True'})
-        #         print(conman.include_node)
-        #         # flash("Included Node")
-        #     flash("Included Node")
 
     return redirect(url_for('connection'))
 

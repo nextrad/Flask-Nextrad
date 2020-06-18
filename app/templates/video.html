@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% include 'header.html' %}
+
+{% block title %} Control {% endblock %}
+
+{% block body %}
+
+
+<html>
+
+<body>
+    <div class="contatiner">
+      <div class='jumbotron'>
+        <div class='row'>
+            <!-- <div class="col-md-4">
+            <img src="{{ url_for('video_feed_0') }}"></div>
+            <div class="col-md-4">
+            <img src="{{ url_for('video_feed_1') }}"></div>
+            <div class="col-md-4">
+            <img src="{{ url_for('video_feed_2') }}"></div>
+            </div> -->
+            <div class="col-md-4">
+                <img src="{{ image }}"></div>
+                <div class="col-md-4">
+                <img src="{{ image }}"></div>
+                <div class="col-md-4">
+                <img src="{{ image }}"></div>
+                </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+{% endblock %}

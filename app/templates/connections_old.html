@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% include 'header.html' %}
+
+{% block title %} Control {% endblock %}
+
+{% block body %}
+
+<!-- massive hack should use jQuery/AJAX :/ -->
+<meta http-equiv="refresh" content="2"/>
+
+
+
+<body>
+
+<div class="container">
+    <div class='jumbotron'>
+    <h2>Node Connections</h2>
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Node</th>
+          <th>Controller</th>
+          <th>Rhino</th>
+          <th>Pentek</th>
+          <th>Camera</th>
+          <th>Include</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n, nodes in connections.items() %}
+            {% if n != 'CNC' %}
+            <tr>
+                {% for vnode, vnval in valid_nodes.items() %}
+                    {% if vnode == n %}
+                        {% if vnval == 'full' %}
+                            <td class='table-success'>{{ n }}</td>
+                        {% elif vnval == 'medium' %}
+                            <td class='table-warning'>{{ n }}</td>
+                            {% set n = 'test' %}
+                        {% else %}
+                            <td class='table-danger'>{{ n }}</td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% for con, val in nodes.items() %}
+                    {% for c,v in val.items() %}
+                        {% if v == True %}
+                        <td class='table-success'> {{ v }} </td>
+                        {% elif v == False %}
+                        <td class='table-danger'> {{ v }} </td>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+
+                {% for vnode, vnval in include_nodes.items() %}
+
+                    {% if vnode == n %}
+                    <td>
+                        <form action="{{ url_for('includenode') }}" method="POST">
+                            {% if vnval == 'True' %}
+
+                            <input type="submit" class="btn btn-success btn-block" value='{{ n }}' name='cb'>
+                            {% elif vnval == 'False' %}
+
+                            <input type="submit" class="btn btn-danger btn-block" value='{{ n }}' name='cb'>
+                            {% endif %}
+                        </form>
+                    </td>
+                    {% endif %}
+                {% endfor %}
+
+
+            </tr>
+            {% endif %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+</div></div>
+
+
+</body>
+
+{% endblock %}
