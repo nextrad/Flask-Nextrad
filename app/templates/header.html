@@ -4,7 +4,23 @@
 {% block title %} NeXtController {% endblock %}
  
 {% block body %}
-<div class="jumbotron p-3">
+
+<style>
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 88px;
+  z-index: 10;
+  background: #eeeeee;
+  -webkit-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+  -moz-box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 7px 8px rgba(0, 0, 0, 0.12);
+}
+</style>
+<div class='header'>
+<div  class="jumbotron p-3">
     <!-- <div class="row"> -->
         <!-- <div class="col-md-12"></div> -->
             <div class="well text-center">
@@ -82,9 +98,11 @@
         </div>
     </div>
 </div>
+
 {% endfor %}
 
 {% endif %}
 {% endwith %}
+</div>
 </div>
 {% endblock %}

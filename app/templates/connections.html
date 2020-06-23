@@ -78,54 +78,50 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.page__content-container {
+	  	margin-top: 200px;
+		}
 
 </style>
 
 <script type='text/javascript'>
 
-
-
-// $('#sliderDivId').data('slider').getValue()
-
 $(document).ready(function() {
 
-    var socket = io.connect('http://127.0.0.1:5000');
+    var socket = io.connect('{{server_ip}}');
+
 
     socket.on('connect', function(){
-        socket.send('User connected!');
+        // socket.send('User connected!');
+        console.log(socket.id);
     });
 
     socket.on('message', function(msg){
         var obj = (msg);
+        $("#lab").text(JSON.stringify(msg));
 
-    $("#n0toggle").change(function(){
-
-    if($(this).prop("checked") == true){
-       socket.send("{'Node0':'True'}");
-    }else{
-       socket.send("{'Node0':'False'}");
-    }
-    });
-    $("#n1toggle").change(function(){
-
-    if($(this).prop("checked") == true){
-    socket.send("{'Node1':'True'}");
-    }else{
-    socket.send("{'Node1':'False'}");
-    }
-    });
-    $("#n2toggle").change(function(){
-
-    if($(this).prop("checked") == true){
-    socket.send("{'Node2':'True'}");
-    }else{
-    socket.send("{'Node2':'False'}");
-    }
-    });
+        if (obj['Node0']['Include'] == true){
+            $("#n0toggle").prop("checked", true);
+        }
+        else{
+            $("#n0toggle").prop("checked", false);
+        }
+        if (obj['Node1']['Include'] == true){
+            $("#n1toggle").prop("checked", true);
+        }
+        else{
+            $("#n1toggle").prop("checked", false);
+        }
+        if (obj['Node2']['Include'] == true){
+            $("#n2toggle").prop("checked", true);
+        }
+        else{
+            $("#n2toggle").prop("checked", false);
+        }
 
         if (obj['Node0']['Node0']['connection'] == true) {
             document.getElementById('n0-c0').style.backgroundColor='#5cb85c';
-        } 
+        }
         else {
             document.getElementById('n0-c0').style.backgroundColor='#d9534f';
         }
@@ -229,9 +225,32 @@ $(document).ready(function() {
         // console.log(obj)
     });
 
+    $("#n0toggle").change(function(){
+        if($(this).prop("checked") == true){
+        socket.send("{'Node0':{'Include':True}}");
+        }else{
+        socket.send("{'Node0':{'Include':False}}");
+        }
+    });
+    $("#n1toggle").change(function(){
+        if($(this).prop("checked") == true){
+        socket.send("{'Node1':{'Include':True}}");
+
+        }else{
+        socket.send("{'Node1':{'Include':False}}");
+
+        }
+    });
+    $("#n2toggle").change(function(){
+        if($(this).prop("checked") == true){
+        socket.send("{'Node2':{'Include':True}}");
+        }else{
+        socket.send("{'Node2':{'Include':False}}");
+        }
+    });
 });
 </script>
-
+<div class="page__content-container ">
     <div class="container">
         <div class='jumbotron'>
         <h2>Node Connections</h2>
@@ -256,11 +275,9 @@ $(document).ready(function() {
                     <td id='n0-toggle'>
                         <!-- Rounded switch -->
                     <label class="switch">
-                        {% if togs.Node0 == 'True' %}
+
                         <input id='n0toggle' type="checkbox" data-toggle ='toggle' checked  >
-                        {% else %}
-                        <input id='n0toggle' type="checkbox" data-toggle ='toggle' >
-                        {% endif %}
+
                         <span class="slider round"></span>
                     </label>
 
@@ -275,11 +292,9 @@ $(document).ready(function() {
                     <td id='n1-cam0'></td>
                     <td id='n1-toggle'>
                         <label class="switch">
-                            {% if togs.Node1 == 'True' %}
+
                             <input id='n1toggle' type="checkbox" data-toggle ='toggle' checked  >
-                            {% else %}
-                            <input id='n1toggle' type="checkbox" data-toggle ='toggle' >
-                            {% endif %}
+
                             <span class="slider round"></span>
                         </label>
                     </td>
@@ -292,11 +307,9 @@ $(document).ready(function() {
                     <td id='n2-cam0'></td>
                     <td id='n2-toggle'>
                         <label class="switch">
-                            {% if togs.Node2 == 'True' %}
+
                             <input id='n2toggle' type="checkbox" data-toggle ='toggle' checked  >
-                            {% else %}
-                            <input id='n2toggle' type="checkbox" data-toggle ='toggle' >
-                            {% endif %}
+
                             <span class="slider round"></span>
                         </label>
                     </td>
@@ -305,8 +318,11 @@ $(document).ready(function() {
             </tbody>
         </table>
     
-    </div></div>
-    
+    </div>
+
+<label id="lab"></label>
+</div>
+</div>  
 
 
 </body>

@@ -56,3 +56,15 @@ class Experiments(db.Model):
 
     def __repr__(self):
         return '<Pulse {},{},{}>'.format(self.frequency,self.pulse_width,self.polarisation)
+
+class IncludeNodes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Node0 = db.Column(db.String(64), index=True, unique=False)
+    Node1 = db.Column(db.String(64), index=True, unique=False)
+    Node2 = db.Column(db.String(64), index=True, unique=False)
+    Node0_v = db.Column(db.String(64), index=True, unique=False)
+    Node1_v = db.Column(db.String(64), index=True, unique=False)
+    Node2_v = db.Column(db.String(64), index=True, unique=False)
+
+    def __repr__(self):
+        return '<Include Values {},{},{}>'.format(self.Node0,self.Node1,self.Node2)

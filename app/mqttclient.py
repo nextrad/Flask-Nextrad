@@ -31,11 +31,11 @@ except:
     mq_is_running = 0
 # mqtt_client.name = mq_client_name
 
-def update(d, u):
+def update_dict(d, u):
     for k, v in u.items():
         if isinstance(d, collections.Mapping):
             if isinstance(v, collections.Mapping):
-                r = update(d.get(k, {}), v)
+                r = update_dict(d.get(k, {}), v)
                 d[k] = r
             else:
                 d[k] = u[k]
@@ -46,7 +46,7 @@ def update(d, u):
 def update_connections(m):
     # try:
     temp=ast.literal_eval(m)
-    ConManager.conman.cond = update(ConManager.conman.cond,temp)
+    ConManager.conman.cond = update_dict(ConManager.conman.cond,temp)
     ConManager.conman.node_valid()
     ConManager.send_message((ConManager.conman.cond))
 

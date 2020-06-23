@@ -1,9 +1,11 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
+
 class Config(object):
     # ...
-	
+    # SERVER_NAME = '10.0.0.111:5000'
     DEBUG = False
 
 

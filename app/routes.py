@@ -25,31 +25,32 @@ def nocache(view):
 
 def connect_cameras():
     try:
-        Camera0 = import_module('camera_opencv').Camera0
+        Camera0 = import_module('camera_v4l2').Camera
+        Camera0.set_video_source('/dev/video1')
         cam0=1
-    except:
+    except RuntimeError:
         Camera0 = None
         cam0=0
     try:
-        Camera1 = import_module('camera_opencv').Camera1
+        Camera1 = import_module('camera_v4l2').Camera1
+        Camera1.set_video_source('/dev/video0')
         cam1=1
-    except:
+    except RuntimeError:
         Camera1 = None
         cam1=0
     try:
-        Camera2 = import_module('camera_opencv').Camera2
-        cam2=1
-    except:
+        # Camera2 = import_module('camera_v4l2').Camera
+        # Camera2.set_video_source(2)
+        Camera2 = None
+        cam2=0
+    except RuntimeError:
         Camera2 = None
         cam2=0
 
     return cam0,cam1,cam2, Camera0, Camera1,Camera2
 
-# cam0, cam1, cam2, Camera0, Camera1, Camera2 = connect_cameras()
-cam0 = 0
-cam1 = 0
+cam0, cam1, cam2, Camera0, Camera1, Camera2 = connect_cameras()
 
-cam2 = 0
 nc_image = 'static/no_con.jpg'
 
 @app.route('/',methods=['GET','POST'])
@@ -64,8 +65,8 @@ def index():
 
 @app.route('/video',methods=['GET','POST'])
 def video():
-    
-    return render_template('video.html',image=nc_image)
+    con = {'Cam0':cam0,'Cam1':cam1,'Cam2':cam2}
+    return render_template('video.html',image=nc_image,con=con)
 
 
 @app.route('/edit')
@@ -113,8 +114,6 @@ def video_feed_0():
     if cam0==1:
         return Response(gen(Camera0()),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response(nc_image)
 
 @app.route('/video_feed_1')
 def video_feed_1():
@@ -122,8 +121,6 @@ def video_feed_1():
     if cam1 == 1:
         return Response(gen(Camera1()),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response(nc_image)
 
 @app.route('/video_feed_2')
 def video_feed_2():
@@ -131,8 +128,7 @@ def video_feed_2():
     if cam2==1:
         return Response(gen(Camera2()),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response(nc_image,mimetype='image/gif')
+
 
 @app.route('/testpage2')
 def suggestions():
@@ -141,16 +137,13 @@ def suggestions():
     jtime = {'time':time}
     return render_template('testpage2.html', time=time)
 
-# @app.route('/testpage')
 # @nocache
-# def testpage():
-
-#     print('=====',togs)
-#     return render_template('testpage.html',)
-
 @app.route('/connections')
-@nocache
 def connection():
-    ConManager.send_message((ConManager.conman.cond))
-    togs = ConManager.conman.include_node
-    return render_template('connections.html', togs=togs)
+    ConManager.send_message(ConManager.conman.cond)
+    # toggles = []
+    # for node, value in ConManager.conman.cond.items():
+    for node in ConManager.conman.cond:
+        if node != 'CNC':
+            print(node,ConManager.conman.cond[node]['Include'])
+    return render_template('connections.html', server_ip='10.0.0.111:5000')

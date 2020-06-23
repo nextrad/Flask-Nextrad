@@ -32,6 +32,9 @@ Node0:
         locked: None
     Status:
         run: 0
+    Include: True
+    Valid: No
+    
         
 Node1:
     Node1:
@@ -57,6 +60,9 @@ Node1:
         locked: None
     Status:
         run: 0
+    Include: True
+    Valid: No
+    
         
 Node2:
     Node2:
@@ -82,5 +88,8 @@ Node2:
         locked: None
     Status:
         run: 0
+    Include: True
+    Valid: No
+    
         
         

@@ -5,14 +5,14 @@ import v4l2capture
 from base_camera import BaseCamera
 
 
-class Camera0(BaseCamera):
+class Camera(BaseCamera):
     """Requires python-v4l2capture module: https://github.com/gebart/python-v4l2capture"""
 
     video_source = '/dev/video0'
 
     @staticmethod
     def frames():
-        video = v4l2capture.Video_device(Camera0.video_source)
+        video = v4l2capture.Video_device(Camera.video_source)
         # Suggest an image size. The device may choose and return another if unsupported
         size_x = 640
         size_y = 480
@@ -34,6 +34,9 @@ class Camera0(BaseCamera):
         finally:
             video.close()
 
+    @staticmethod
+    def set_video_source(source):
+        Camera.video_source = source
 
 class Camera1(BaseCamera):
     """Requires python-v4l2capture module: https://github.com/gebart/python-v4l2capture"""
@@ -64,34 +67,9 @@ class Camera1(BaseCamera):
         finally:
             video.close()
 
-
-class Camera2(BaseCamera):
-    """Requires python-v4l2capture module: https://github.com/gebart/python-v4l2capture"""
-
-    video_source = '/dev/video1'
-
     @staticmethod
-    def frames():
-        video = v4l2capture.Video_device(Camera2.video_source)
-        # Suggest an image size. The device may choose and return another if unsupported
-        size_x = 640
-        size_y = 480
-        size_x, size_y = video.set_format(size_x, size_y)
-        video.create_buffers(1)
-        video.queue_all_buffers()
-        video.start()
-        bio = io.BytesIO()
+    def set_video_source(source):
+        Camera1.video_source = source
 
-        try:
-            while True:
-                select.select((video,), (), ())  # Wait for the device to fill the buffer.
-                image_data = video.read_and_queue()
-                image = Image.frombytes("RGB", (size_x, size_y), image_data)
-                image.save(bio, format="jpeg")
-                yield bio.getvalue()
-                bio.seek(0)
-                bio.truncate()
-        finally:
-            video.close()
 
 

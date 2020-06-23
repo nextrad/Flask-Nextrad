@@ -9,26 +9,52 @@
 
 <html>
 
+<style>
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.page__content-container {
+	  	margin-top: 200px;
+		}
+
+</style>
+
 <body>
+    <div class='page__content-container'>
     <div class="contatiner">
-      <div class='jumbotron'>
+      <!-- <div class='jumbotron'> -->
         <div class='row'>
-            <!-- <div class="col-md-4">
-            <img src="{{ url_for('video_feed_0') }}"></div>
-            <div class="col-md-4">
-            <img src="{{ url_for('video_feed_1') }}"></div>
-            <div class="col-md-4">
-            <img src="{{ url_for('video_feed_2') }}"></div>
-            </div> -->
-            <div class="col-md-4">
-                <img src="{{ image }}"></div>
-                <div class="col-md-4">
-                <img src="{{ image }}"></div>
-                <div class="col-md-4">
-                <img src="{{ image }}"></div>
-                </div>
+            <div class="col-md-10"><br></br>
+                <div class="contatiner" class="center">
+                {% if con.Cam0 == 0 %}
+                <img src="{{ image }} " class="center"></div>
+                {%else%}
+                <img src="{{ url_for('video_feed_0') }}" class="center"></div></div>
+                {%endif%}
+
+            <div class="col-md-10"><br></br>
+                <div class="contatiner" class="center">
+                {% if con.Cam1 == 0 %}
+                <img src="{{ image }}" class="center"></div>
+                {%else%}
+                <img src="{{ url_for('video_feed_1') }}" class="center"></div></div>
+                {%endif%}
+
+            <div class="col-md-10"><br></br>
+                <div class="contatiner" class="center">
+                {%if con.Cam2 == 0 %}
+                <img src="{{ image }}" class="center"></div>
+                {%else%}
+                <img src="{{ url_for('video_feed_2') }}" class="center"></div></div>
+                {%endif%}
         </div>
+        <!-- </div> -->
     </div>
+</div>
 </body>
 
 </html>
