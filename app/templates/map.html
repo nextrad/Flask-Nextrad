@@ -266,30 +266,45 @@
 				}
 			}
 
-			map.addSource('geojson', {
-			'type': 'geojson',
-			'data': geojson
-			});
-
 			map.addSource("myImageSource", {
                 "type": "image",
-                'url': 'https://github.com/nextrad/Flask-Nextrad/blob/master/app/static/st_static.png?raw=true',
+                'url': 'https://raw.githubusercontent.com/nextrad/Flask-Nextrad/master/app/static/st_static.png',
                 "coordinates": [
-                    [18.425, -34.15],
-                    [18.485, -34.15],
-                    [18.485, -34.21],
-                    [18.425, -34.21]
+                    [18.424, -34.15],
+                    [18.484, -34.15],
+                    [18.484, -34.2085],
+                    [18.424, -34.2085]
                 ]
             });
 
-            map.addLayer({
-                "id": "overlay",
+			map.addLayer({
+                "id": "st_overlay",
                 "source": "myImageSource",
                 "type": "raster",
                 "paint": {
                 "raster-opacity": 0.85
                 }
             });
+
+			slider.addEventListener('input', function(e) {
+				// Adjust the layers opacity. layer here is arbitrary - this could
+				// be another layer name found in your style or a custom layer
+				// added on the fly using `addSource`.
+				map.setPaintProperty(
+				'st_overlay',
+				'raster-opacity',
+				parseInt(e.target.value, 10) / 100
+				);
+
+				// Value indicator
+				sliderValue.textContent = e.target.value + '%';
+			});
+
+			map.addSource('geojson', {
+			'type': 'geojson',
+			'data': geojson
+			});
+
 
 			map.addLayer({
 				id: 'measure-points',
@@ -315,7 +330,11 @@
 				'line-width': 2.5
 				},
 				filter: ['in', '$type', 'LineString']
-		});
+			});
+
+
+
+
 
 		map.on('mousemove', function(e) {
 			document.getElementById('info').innerHTML =
@@ -390,6 +409,8 @@
 			? 'pointer'
 			: 'crosshair';
 			});
+
+			
 	// }
 
 	// display_map();	
