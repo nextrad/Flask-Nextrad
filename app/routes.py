@@ -11,6 +11,8 @@ import os
 from flask import Flask, render_template, Response
 from datetime import datetime
 from functools import wraps, update_wrapper
+import cv2
+import numpy as np
 
 def nocache(view):
     @wraps(view)
@@ -25,15 +27,16 @@ def nocache(view):
 
 def connect_cameras():
     try:
-        Camera0 = import_module('camera_v4l2').Camera
-        Camera0.set_video_source('/dev/video1')
+        Camera0 = import_module('camera_opencv').Camera
+        # Camera0.set_video_source(0)
         cam0=1
     except RuntimeError:
         Camera0 = None
         cam0=0
     try:
-        Camera1 = import_module('camera_v4l2').Camera1
-        Camera1.set_video_source('/dev/video0')
+        Camera1 = import_module('camera_opencv').Camera1
+        # Camera1.set_video_source(1)
+        # Camera1 = None
         cam1=1
     except RuntimeError:
         Camera1 = None
@@ -59,7 +62,6 @@ def index():
     pulses = Pulse.query.all()
     defaults=tables.pulse_defaults.defaults
     radar_params={'pri':str(tables.radar_params.pri),'num_pulse':str(tables.radar_params.num_pulse),'range_samples':str(tables.radar_params.range_samples)}
-    # users = [{'name':'Bob','surname':'Man','handle':'@this','order':'1'},{'name':'Susan','surname':'Fish','handle':'@meep','order':'2'}]
     return render_template('control.html', title='Control',pulses=pulses,defaults=defaults,radar_params=radar_params)
 
 
