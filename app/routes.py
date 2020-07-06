@@ -13,10 +13,12 @@ from datetime import datetime
 from functools import wraps, update_wrapper
 import cv2
 import numpy as np
+from app.camera_opencv import Camera
 
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
+        '''Does not save cache of chosen page. Not currently used'''
         response = make_response(view(*args, **kwargs))
         response.headers['Last-Modified'] = datetime.now()
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
@@ -26,33 +28,15 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 def connect_cameras():
-    try:
-        Camera0 = import_module('camera_opencv').Camera
-        # Camera0.set_video_source(0)
-        cam0=1
-    except RuntimeError:
-        Camera0 = None
-        cam0=0
-    try:
-        Camera1 = import_module('camera_opencv').Camera1
-        # Camera1.set_video_source(1)
-        # Camera1 = None
-        cam1=1
-    except RuntimeError:
-        Camera1 = None
-        cam1=0
-    try:
-        # Camera2 = import_module('camera_v4l2').Camera
-        # Camera2.set_video_source(2)
-        Camera2 = None
-        cam2=0
-    except RuntimeError:
-        Camera2 = None
-        cam2=0
+    ''' Connect Camera sources.
+    Issues: Hardcoded for now, will add config parsing. Does not scale past 3 cameras.
+    '''
+    Camera0 = Camera('Camera 0','/dev/video0')
+    Camera1 = Camera('Camera 1','/dev/video1')
+    Camera2 = Camera('Camera 2','/dev/video2')
+    return Camera0, Camera1, Camera2
 
-    return cam0,cam1,cam2, Camera0, Camera1,Camera2
-
-cam0, cam1, cam2, Camera0, Camera1, Camera2 = connect_cameras()
+Camera0, Camera1, Camera2 = connect_cameras()
 
 nc_image = 'static/no_con.jpg'
 
@@ -67,7 +51,10 @@ def index():
 
 @app.route('/video',methods=['GET','POST'])
 def video():
-    con = {'Cam0':cam0,'Cam1':cam1,'Cam2':cam2}
+    Camera0.start_thread()
+    Camera1.start_thread()
+    Camera2.start_thread()
+    con = {'Cam0':Camera0.camera_found,'Cam1':Camera1.camera_found,'Cam2':Camera2.camera_found}
     return render_template('video.html',image=nc_image,con=con)
 
 
@@ -113,22 +100,22 @@ def gen(camera):
 @app.route('/video_feed_0')
 def video_feed_0():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    if cam0==1:
-        return Response(gen(Camera0()),
+    if Camera0.camera_found == 1:
+        return Response(gen(Camera0),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/video_feed_1')
 def video_feed_1():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    if cam1 == 1:
-        return Response(gen(Camera1()),
+    if Camera1.camera_found == 1:
+        return Response(gen(Camera1),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/video_feed_2')
 def video_feed_2():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    if cam2==1:
-        return Response(gen(Camera2()),
+    if Camera2.camera_found == 1:
+        return Response(gen(Camera2),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
